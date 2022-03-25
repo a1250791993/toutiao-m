@@ -1,15 +1,14 @@
 <template>
   <div id="app">
+    <!-- 路由出口 -->
     <router-view></router-view>
-    <h2>黑马程序员</h2>
-    <i class="iconfont icon-dianzan2"></i>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App'
-}
+  name: "App",
+};
 </script>
 
 <style lang="less">
