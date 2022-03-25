@@ -31,7 +31,6 @@ import ArticalItem from "@/components/artical-item";
 export default {
   name: "ArtList",
   components: {
-    getArticalList,
     ArticalItem,
   },
   props: {
