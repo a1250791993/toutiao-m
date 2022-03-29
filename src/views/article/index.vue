@@ -55,12 +55,25 @@
 
         <van-divider>正文结束</van-divider>
 
+        <!-- 评论部分 -->
+        <CommentList
+          :list="commentList"
+          :source="article.art_id"
+          @success-loading="totalCount = $event"
+          @reply-click="onReplyClick"
+        ></CommentList>
+
         <!-- 底部区域 -->
         <div class="article-bottom">
-          <van-button class="comment-btn" type="default" round size="small"
+          <van-button
+            class="comment-btn"
+            type="default"
+            round
+            size="small"
+            @click="showPopup"
             >写评论</van-button
           >
-          <van-icon name="comment-o" badge="123" color="#777" />
+          <van-icon name="comment-o" :badge="totalCount" color="#777" />
           <CollectArticle
             v-model="article.is_collected"
             :art-id="article.art_id"
@@ -72,6 +85,14 @@
           <van-icon name="share" color="#777777"></van-icon>
         </div>
         <!-- /底部区域 -->
+
+        <!-- 弹出层内容(评论,对文章进行评论) -->
+        <van-popup v-model="show" position="bottom">
+          <comment-post
+            :target="article.art_id"
+            @post-success="onPostSuccess"
+          ></comment-post>
+        </van-popup>
       </div>
       <!-- /加载完成-文章详情 -->
 
@@ -90,6 +111,15 @@
       </div>
       <!-- /加载失败：其它未知错误（例如网络原因或服务端异常） -->
     </div>
+
+    <!-- 回复里面评论的弹层 -->
+    <van-popup v-model="isReplyShow" position="bottom" style="height: 100%">
+      <comment-reply
+        v-if="isReplyShow"
+        :current-comment="currentComment"
+        @close="isReplyShow = false"
+      ></comment-reply>
+    </van-popup>
   </div>
 </template>
 
@@ -98,6 +128,9 @@ import { getArticleById } from "@/api/artical";
 import CollectArticle from "@/components/collect-article";
 import FollowUser from "@/components/follow-user";
 import LikeArticle from "@/components/like-article";
+import CommentList from "./components/comment-list.vue";
+import CommentPost from "./components/comment-post.vue";
+import CommentReply from "./components/comment-reply.vue";
 // 引入图片预览组件(vant)
 import { ImagePreview } from "vant";
 
@@ -107,6 +140,15 @@ export default {
     FollowUser,
     CollectArticle,
     LikeArticle,
+    CommentList,
+    CommentPost,
+    CommentReply,
+  },
+  //给所有后代组件提供数据
+  provide: function () {
+    return {
+      articleId: this.articleId,
+    };
   },
   props: {
     articleId: {
@@ -120,6 +162,11 @@ export default {
       loading: true, //加载中的状态
       errStatus: 0, // 失败的状态码
       followLoading: false, //关注加载状态的控制
+      totalCount: 0, //评论总数
+      show: false, //文章写评论弹出层显示状态
+      commentList: [], //评论列表数组
+      isReplyShow: false, //回复评论里面的弹层状态
+      currentComment: [], //当前点击回复的评论项目
     };
   },
   computed: {},
@@ -167,6 +214,10 @@ export default {
       this.$router.back();
     },
 
+    //点击 写评论弹出层显示方法
+    showPopup() {
+      this.show = true;
+    },
     //图片相关方法
     previewImages() {
       // 得到所有的Img节点
@@ -189,6 +240,21 @@ export default {
           });
         };
       });
+    },
+
+    //写评论弹出层组件传出来的方法
+    onPostSuccess(data) {
+      // 关闭弹出层
+      this.show = false;
+      // 将评论显示到顶部
+      this.commentList.unshift(data.new_obj);
+    },
+
+    //回复功能弹出层方法
+    onReplyClick(comment) {
+      this.currentComment = comment;
+
+      this.isReplyShow = true;
     },
   },
 };

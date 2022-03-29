@@ -56,3 +56,28 @@ export const deleteFlow = (target) => request({
     method: 'DELETE',
     url: `/v1_0/user/followings/${target}`,
 })
+
+
+/* 
+获取当前登录用户资料
+*/
+export const getUserProfile = () => request({
+    method: 'GET',
+    url: '/v1_0/user/profile',
+})
+
+/* 
+编辑登录的用户个人资料
+*/
+export const updateUserProfile = (data) => request({
+    method: 'PATCH',
+    url: '/v1_0/user/profile',
+    data
+})
+
+//编辑用户照片资料（头像、身份证照片）
+export const updateUserPhoto = (data) => request({
+    method: 'PATCH',
+    url: '/v1_0/user/photo',
+    data
+})
